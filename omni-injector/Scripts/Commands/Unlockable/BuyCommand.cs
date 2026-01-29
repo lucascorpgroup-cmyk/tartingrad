@@ -15,7 +15,7 @@ readonly record struct BuyableItem {
 }
 
 [Command("buy")]
-class BuyCommand : ICommand {
+sealed class BuyCommand : ICommand {
     static Dictionary<string, BuyableItem>? BuyableItems { get; set; }
 
     static Dictionary<string, BuyableItem> PopulateBuyableItems(Terminal terminal) {
@@ -62,14 +62,14 @@ class BuyCommand : ICommand {
 
         if (buyableItem.Type is BuyableItemType.VEHICLE) {
             clampedQuantity = 1;
-            terminal.BuyVehicleServerRpc(buyableItem.Id, terminal.groupCredits - 1, false);
+            terminal.BuyVehicleServerRpc(buyableItem.Id, terminal.groupCredits - 10000, false);
         }
 
         else if (buyableItem.Type is BuyableItemType.DEFAULT) {
             terminal.orderedItemsFromTerminal.Clear();
             terminal.BuyItemsServerRpc(
                 [.. ValueEnumerable.Repeat(buyableItem.Id, clampedQuantity)],
-                terminal.groupCredits - 1,
+                terminal.groupCredits - 10000,
                 terminal.numberOfItemsInDropship
             );
         }
