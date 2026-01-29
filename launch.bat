@@ -1,42 +1,38 @@
 @echo off
 setlocal enabledelayedexpansion
-title Omni Injector Launcher
+title Omni Injector - Auto Update
 cls
-echo check des mises a jours omni injector...
 
-:: 1. On recupere les infos de GitHub
+echo [1/3] Verification de la connexion au serveur GitHub...
 git fetch origin main >nul 2>&1
 
-:: Verification si git fetch a fonctionne (internet, acces...)
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Impossible de contacter GitHub. Verifiez votre connexion.
-    echo Lancement de la version locale...
+    echo [ERREUR] Impossible de joindre GitHub.
+    echo Le programme va se lancer avec la version actuelle.
     goto :lancement
 )
 
-:: 2. On recupere les Hash (ID unique des versions)
+:: Récupération des identifiants de version (Hash)
 for /f "delims=" %%i in ('git rev-parse HEAD') do set LOCAL=%%i
 for /f "delims=" %%i in ('git rev-parse origin/main') do set REMOTE=%%i
 
-:: 3. Comparaison
 if "!LOCAL!" == "!REMOTE!" (
-    echo Vous etes a jour.
+    echo [2/3] Aucune mise a jour trouvee. Votre version est a jour.
 ) else (
-    echo [!] Mise a jour omni injector detectee !
-    echo Installation en cours...
+    echo [2/3] Une nouvelle version est disponible !
+    echo        Mise a jour en cours...
+    
+    :: Cette commande met tes modifs de côté, met à jour, et remet tes modifs
     git pull --rebase --autostash origin main
-    echo Mise a jour terminee avec succes.
+    
+    echo [OK] Mise a jour terminee avec succes.
 )
 
 :lancement
 echo.
-echo Lancement de Omni Injector...
+echo [3/3] Lancement de Omni Injector...
+echo.
 timeout /t 2 >nul
 call launch-dev.bat
 
-:: Si jamais launch-dev.bat plante, ceci gardera la fenetre ouverte
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo [CRASH] Le programme s'est ferme avec une erreur.
-    pause
-)
+pause
