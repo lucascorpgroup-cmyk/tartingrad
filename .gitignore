@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+.vscode/
+.mono/
+.cr/
+*.sln
+node_modules/

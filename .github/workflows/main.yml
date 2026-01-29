@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    paths:
+      - .github/workflows/main.yml
+      - .editorconfig
+      - lc-hax/**
+
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+        with:
+          show-progress: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4.3.1
+        with:
+          dotnet-version: 9.x
+          cache: true
+          cache-dependency-path: lc-hax\packages.lock.json
+
+      - name: Build
+        run: dotnet build lc-hax -restoreProperty:RestoreLockedMode=true /warnaserror

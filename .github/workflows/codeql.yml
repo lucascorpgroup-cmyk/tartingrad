@@ -1,0 +1,47 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '24 23 * * 0'
+
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.2
+      with:
+        show-progress: false
+
+    - name: Initialise CodeQL
+      uses: github/codeql-action/init@v3.29.7
+      with:
+        languages: csharp
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4.3.1
+      with:
+        dotnet-version: 9.x
+        cache: true
+        cache-dependency-path: lc-hax\packages.lock.json
+
+    - name: Build
+      run: dotnet build lc-hax -restoreProperty:RestoreLockedMode=true
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3.29.7
+      with:
+        category: /language:csharp

@@ -1,0 +1,25 @@
+name: Build
+
+on:
+  push:
+    paths:
+      - .github/workflows/main.yml
+      - Scripts/**
+      - '*.csproj'
+
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4.0.1
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build
+        run: dotnet build

@@ -1,0 +1,44 @@
+name: Format
+
+on:
+  pull_request:
+  push:
+    paths:
+      - .github/workflows/formatter.yml
+      - .editorconfig
+      - lc-hax/Scripts/**/*.cs
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+        with:
+          show-progress: false
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.head_ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4.3.1
+        with:
+          dotnet-version: 9.x
+
+      - name: Format scripts
+        run: |
+          dotnet format lc-hax
+          dotnet format analysers
+
+      - name: Set Git config
+        run: |
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git config user.name github-actions[bot]
+
+      - name: Commit changes
+        run: |
+          git commit -am "style: format scripts" || true
+          git push

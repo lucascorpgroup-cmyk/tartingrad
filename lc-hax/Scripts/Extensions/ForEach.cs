@@ -1,0 +1,66 @@
+using System;
+using System.Collections.Generic;
+using ZLinq;
+using UnityObject = UnityEngine.Object;
+
+static partial class Extensions {
+    internal static void ForEach<T>(this IEnumerable<T> array, Action<T> action) {
+        foreach (T item in array) {
+            action(item);
+        }
+    }
+
+    internal static void ForEach<T>(this IEnumerable<T> array, Action<int, T> action) {
+        int i = 0;
+
+        foreach (T item in array) {
+            action(i++, item);
+        }
+    }
+
+    internal static void ForEach<T>(this ValueEnumerable<ZLinq.Linq.ArrayWhere<T>, T> array, Action<T> action) {
+        foreach (T item in array) {
+            action(item);
+        }
+    }
+
+    internal static void ForEach<T>(this ValueEnumerable<ZLinq.Linq.Where<ZLinq.Linq.FromEnumerable<T>, T>, T> array, Action<T> action) {
+        foreach (T item in array) {
+            action(item);
+        }
+    }
+
+    internal static void ForEach<T>(this ValueEnumerable<ZLinq.Linq.ArrayWhere<T>, T> array, Action<int, T> action) {
+        int i = 0;
+
+        foreach (T item in array) {
+            action(i++, item);
+        }
+    }
+
+    internal static void ForEach<T>(this ValueEnumerable<ZLinq.Linq.Where<ZLinq.Linq.FromEnumerable<T>, T>, T> array, Action<int, T> action) {
+        int i = 0;
+
+        foreach (T item in array) {
+            action(i++, item);
+        }
+    }
+
+    internal static void ForEach<T>(this T[] array, Action<int, T> action) {
+        for (int i = 0; i < array.Length; i++) {
+            action(i, array[i]);
+        }
+    }
+
+    internal static void ForEach<T>(this List<T> array, Action<int, T> action) {
+        for (int i = 0; i < array.Count; i++) {
+            action(i, array[i]);
+        }
+    }
+
+    internal static void ForEach<T>(this MultiObjectPool<T> multiObjectPool, Action<T?> action) where T : UnityObject =>
+        multiObjectPool.Objects.ForEach(action);
+
+    internal static void ForEach<T>(this MultiObjectPool<T> multiObjectPool, Action<int, T?> action) where T : UnityObject =>
+        multiObjectPool.Objects.ForEach(action);
+}

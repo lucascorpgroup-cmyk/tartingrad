@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+
+    <PublishDir>dist</PublishDir>
+    <OutputType>exe</OutputType>
+    <RootNamespace>SharpMonoInjector</RootNamespace>
+    <AssemblyName>SharpMonoInjector</AssemblyName>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+
+  </PropertyGroup>
+
+  <Target Name="CleanBeforeRestore" BeforeTargets="Restore">
+    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+    <RemoveDir Directories="$(BaseOutputPath)" />
+    <RemoveDir Directories="$(PublishDir)" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
