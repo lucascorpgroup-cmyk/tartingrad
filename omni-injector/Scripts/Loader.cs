@@ -30,7 +30,7 @@ class Loader : MonoBehaviour {
         Loader.LoadLibraries();
 
         if (Loader.HasLoaded) {
-            Logger.Write("lc-hax has already loaded!");
+            Logger.Write("omni-injector has already loaded!");
             return;
         }
 

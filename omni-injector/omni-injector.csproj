@@ -1,8 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- CONFIGURATION DU NOM ET DU CHEMIN DE SORTIE (NECESSAIRE POUR LE LAUNCHER) -->
+    <AssemblyName>omni-injector</AssemblyName>
+    <!-- On force la sortie dans le dossier bin local, sans sous-dossiers -->
+    <OutDir>bin\</OutDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
-    <OutDir>../bin</OutDir>
+    <!-- CONFIGURATION D'ORIGINE (INCHANGEE) -->
     <Optimize>true</Optimize>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
@@ -13,41 +19,28 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-
   </PropertyGroup>
 
+  <!-- DEPENDANCES D'ORIGINE (NECESSAIRES AU CHEAT) -->
   <ItemGroup>
-
     <ProjectReference Include="..\analysers\analysers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
     <PackageReference Include="LethalCompany.GameLibs.Steam" Version="70.0.0-ngd.0" />
-
     <PackageReference Include="Nullable.Extended.Analyzer" Version="1.15.6581" />
-
     <PackageReference Include="RequireNamedArgs" Version="0.0.7" />
-
     <PackageReference Include="Quickenshtein" Version="1.5.1" />
-
     <PackageReference Include="Zlinq" Version="1.5.2" />
-
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
-
     <PackageReference Include="Lib.Harmony" Version="2.3.6" />
 
+    <!-- RESSOURCES INTEGREES (ESSENTIELLES POUR LE MODE PORTABLE) -->
     <EmbeddedResource Include="$(NuGetPackageRoot)/lib.harmony/2.3.6/lib/net48/0Harmony.dll" />
-
     <EmbeddedResource Include="$(NuGetPackageRoot)/zlinq/1.5.2/lib/netstandard2.1/Zlinq.dll" />
-
     <EmbeddedResource Include="$(NuGetPackageRoot)/quickenshtein/1.5.1/lib/netstandard2.0/Quickenshtein.dll" />
-
     <EmbeddedResource Include="$(NuGetPackageRoot)/system.memory/4.5.4/lib/netstandard2.0/System.Memory.dll" />
-
     <EmbeddedResource Include="$(NuGetPackageRoot)/system.buffers/4.5.1/lib/netstandard2.0/System.Buffers.dll" />
-
     <EmbeddedResource Include="$(NuGetPackageRoot)/system.runtime.compilerservices.unsafe/6.1.2/lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll" />
-
     <EmbeddedResource Include="$(NuGetPackageRoot)/communitytoolkit.highperformance/8.4.0/lib/netstandard2.1/CommunityToolkit.HighPerformance.dll" />
-
   </ItemGroup>
 
   <Target Name="CleanBeforeRestore" BeforeTargets="Restore">
