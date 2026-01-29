@@ -1,23 +1,42 @@
 @echo off
+setlocal enabledelayedexpansion
+title Omni Injector Launcher
 cls
 echo check des mises a jours omni injector...
 
-:: On recupere les dernieres infos de GitHub sans telecharger les fichiers
+:: 1. On recupere les infos de GitHub
 git fetch origin main >nul 2>&1
 
-:: On recupere l'identifiant (le hash) du dernier commit local
-for /f %%i in ('git rev-parse HEAD') do set LOCAL=%%i
-:: On recupere l'identifiant du dernier commit sur GitHub
-for /f %%i in ('git rev-parse origin/main') do set REMOTE=%%i
-
-if "%LOCAL%" == "%REMOTE%" (
-    echo Vous etes a jour
-) else (
-    echo Mise a jour omni injector...
-    :: On fait le pull silencieusement
-    git pull --rebase --autostash origin main >nul 2>&1
-    echo Mise a jour terminee.
+:: Verification si git fetch a fonctionne (internet, acces...)
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de contacter GitHub. Verifiez votre connexion.
+    echo Lancement de la version locale...
+    goto :lancement
 )
 
-:: Lancement du programme
+:: 2. On recupere les Hash (ID unique des versions)
+for /f "delims=" %%i in ('git rev-parse HEAD') do set LOCAL=%%i
+for /f "delims=" %%i in ('git rev-parse origin/main') do set REMOTE=%%i
+
+:: 3. Comparaison
+if "!LOCAL!" == "!REMOTE!" (
+    echo Vous etes a jour.
+) else (
+    echo [!] Mise a jour omni injector detectee !
+    echo Installation en cours...
+    git pull --rebase --autostash origin main
+    echo Mise a jour terminee avec succes.
+)
+
+:lancement
+echo.
+echo Lancement de Omni Injector...
+timeout /t 2 >nul
 call launch-dev.bat
+
+:: Si jamais launch-dev.bat plante, ceci gardera la fenetre ouverte
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [CRASH] Le programme s'est ferme avec une erreur.
+    pause
+)
