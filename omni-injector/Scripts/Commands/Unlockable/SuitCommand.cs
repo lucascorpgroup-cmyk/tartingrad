@@ -1,121 +1,96 @@
-using HarmonyLib;
-using Steamworks;
-using UnityEngine;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ZLinq;
 
-namespace lc_hax.Scripts.Commands.Unlockable
+[Command("suit")]
+sealed class SuitCommand : ICommand
 {
-    // =========================
-    // STEAM ID SPOOFER (SAFE)
-    // =========================
-    [HarmonyPatch]
-    internal static class SteamIDSpoofer
+    internal static Dictionary<string, Unlockable> SuitUnlockables =>
+        Enum.GetValues(typeof(Unlockable))
+            .Cast<Unlockable>()
+            .Where(u => u.ToString().EndsWith("_SUIT"))
+            .ToDictionary(
+                suit => suit.ToString().Replace("_SUIT", "").ToLower(),
+                suit => suit
+            );
+
+    private static bool _spamActive = false;
+
+    public async Task Execute(Arguments args, CancellationToken cancellationToken)
     {
-        public static bool Enabled = false;
-        public static ulong OriginalSteamId = 0;
-        public static ulong CurrentSteamId = 0;
+        // Vérifie si args contient au moins 1 argument
+        bool hasArg = false;
+        try { var _ = args[0]; hasArg = true; } catch { hasArg = false; }
 
-        // Init SAFE (lazy)
-        public static void EnsureInit()
+        if (!hasArg)
         {
-            if (OriginalSteamId != 0)
-                return;
-
-            // Steam pas prêt ? on annule
-            if (!SteamClient.IsValid)
+            // Si spam déjà actif, on l'arrête
+            if (_spamActive)
             {
-                Debug.Log("[SteamIDSpoofer] SteamClient not ready");
+                _spamActive = false;
+                Chat.Print("Stopped suit spam.");
                 return;
             }
 
-            OriginalSteamId = SteamClient.SteamId.Value;
-            CurrentSteamId = OriginalSteamId;
-
-            Debug.Log($"[SteamIDSpoofer] Original SteamID saved: {OriginalSteamId}");
+            _spamActive = true;
+            Chat.Print("Starting suit spam...");
+            await SpamSuits();
+            return;
         }
 
-        public static void Spoof(ulong newId)
+        // Sinon, porter un suit spécifique
+        if (args[0] is not string suitName)
         {
-            EnsureInit();
-
-            if (OriginalSteamId == 0)
-                return;
-
-            Enabled = true;
-            CurrentSteamId = newId;
-            Debug.Log($"[SteamIDSpoofer] Spoofing SteamID -> {newId}");
+            Chat.Print("Usage: /suit <suit>");
+            return;
         }
 
-        public static void Cancel()
+        if (!suitName.FuzzyMatch(SuitUnlockables.Keys, out string key))
         {
-            if (OriginalSteamId == 0)
-                return;
-
-            Enabled = false;
-            CurrentSteamId = OriginalSteamId;
-            Debug.Log("[SteamIDSpoofer] Spoof canceled");
+            Chat.Print("Suit not found!");
+            return;
         }
 
-        // 🔹 SEUL hook Steam (safe)
-        [HarmonyPatch(typeof(SteamClient), "get_SteamId")]
-        [HarmonyPrefix]
-        static bool SteamClient_GetSteamId(ref SteamId __result)
-        {
-            if (!Enabled)
-                return true;
+        var selectedSuit = SuitUnlockables[key];
+        EquipSuit(selectedSuit);
+    }
 
-            __result = (SteamId)CurrentSteamId;
-            return false;
+    private async Task SpamSuits()
+    {
+        var suits = SuitUnlockables.Values.ToList();
+        int index = 0;
+
+        while (_spamActive)
+        {
+            var suit = suits[index];
+            EquipSuit(suit);
+
+            index = (index + 1) % suits.Count;
+            await Task.Delay(50); // 50ms entre chaque changement
         }
     }
 
-    // =========================
-    // RANDOM STEAMID GENERATOR
-    // =========================
-    internal static class SteamIdGenerator
+    private void EquipSuit(Unlockable suit)
     {
-        public static ulong GenerateRandom()
+        Helper.BuyUnlockable(suit);
+
+        var suitObj = Helper
+            .FindObjects<UnlockableSuit>()
+            .FirstOrDefault(s => suit.Is(s.suitID));
+
+        if (suitObj != null && Helper.LocalPlayer != null)
         {
-            const ulong baseId = 76561197960265728UL;
-            ulong offset = (ulong)UnityEngine.Random.Range(10_000_000, 800_000_000);
-            return baseId + offset;
+            suitObj.SwitchSuitToThis(Helper.LocalPlayer);
         }
-    }
 
-    // =========================
-    // CHAT COMMAND : /spoof
-    // =========================
-    [Command("spoof")]
-    sealed class SpoofCommand : ICommand
-    {
-        public Task Execute(Arguments args, CancellationToken token)
-        {
-            if (args.Length == 0)
-            {
-                Debug.Log("[/spoof] Usage: /spoof random | /spoof cancel");
-                return Task.CompletedTask;
-            }
+        string suitTitle = string.Join(" ", suit.ToString()
+            .Split('_')
+            .Select(s => s.ToLower())
+            .Select(s => char.ToUpper(s[0]) + s.Substring(1)));
 
-            string sub = args[0].ToLowerInvariant();
-
-            if (sub == "random")
-            {
-                ulong id = SteamIdGenerator.GenerateRandom();
-                SteamIDSpoofer.Spoof(id);
-                Debug.Log($"[/spoof] Random SteamID set: {id}");
-            }
-            else if (sub == "cancel")
-            {
-                SteamIDSpoofer.Cancel();
-                Debug.Log("[/spoof] SteamID restored");
-            }
-            else
-            {
-                Debug.Log("[/spoof] Unknown argument");
-            }
-
-            return Task.CompletedTask;
-        }
+        Chat.Print($"Wearing {suitTitle}!");
     }
 }
