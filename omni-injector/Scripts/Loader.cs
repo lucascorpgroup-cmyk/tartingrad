@@ -68,7 +68,13 @@ class Loader : MonoBehaviour {
         Loader.AddHaxModules<ChatMod>();
         Loader.AddHaxModules<FollowMod>();
         Loader.AddHaxModules<WeightMod>();
-        Loader.AddHaxModules<StaminaMod>();
+        
+        // --- MODIFICATION ICI ---
+        // J'ai remplacé <StaminaMod> par <global::StaminaLogic>
+        // Cela correspond au nom de la classe "StaminaLogic" dans le script précédent.
+        Loader.AddHaxModules<global::StaminaLogic>(); 
+        // ------------------------
+
         Loader.AddHaxModules<PhantomMod>();
         Loader.AddHaxModules<TriggerMod>();
         Loader.AddHaxModules<AntiKickMod>();
