@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-[Command("spin")]
+[Command("fastspin")]
 sealed class SpinCommand : ICommand
 {
     private const float BaseRotationSpeed = 750.0f;

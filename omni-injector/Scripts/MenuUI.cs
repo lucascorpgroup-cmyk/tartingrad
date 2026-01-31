@@ -57,6 +57,9 @@ namespace Hax
         private bool extremeHeadSpin;
         private float headSpinSpeed = 1000f;
         
+        // INPUTS TROLL (AJOUT)
+        private string spinInput = "10"; // Variable pour la durée du Fast Spin
+
         // ===== SPAWN / HOST =====
         private string enemyToSpawn = "Girl";
         private string spawnAmount = "1";
@@ -482,7 +485,16 @@ namespace Hax
                 if (Helper.Players != null) 
                     foreach(var p in Helper.Players) ExecuteCommand($"/noise {p.playerUsername} {noiseDuration}");
             }
+            
+            // AJOUT DU FAST SPIN ICI
+            GUILayout.BeginHorizontal();
             if (GUILayout.Button("SPIN MAP (10s)")) ExecuteCommand("/spin 10");
+            
+            GUILayout.Label("Durée:", GUILayout.Width(45));
+            spinInput = GUILayout.TextField(spinInput, GUILayout.Width(40));
+            if (GUILayout.Button("FAST SPIN")) ExecuteCommand($"/fastspin {spinInput}");
+            GUILayout.EndHorizontal();
+
             if (GUILayout.Button("STUN ENEMIES (5s)")) ExecuteCommand("/stun 5");
 
             GUILayout.Space(10);
