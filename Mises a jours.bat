@@ -1,7 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
-title Omni Injector - Updater
-mode con: cols=85 lines=20
+:: ==========================================
+:: CONFIGURATION
+:: ==========================================
+title OMNI INJECTOR - UPDATER
+mode con: cols=85 lines=30
 color 0B
 
 :: --- CORRECTIF CRITIQUE ---
@@ -9,64 +12,98 @@ color 0B
 cd /d "%~dp0"
 :: --------------------------
 
+:: ==========================================
+:: BANNIERE ASCII
+:: ==========================================
+cls
 echo.
-echo  =============================================================
-echo     OMNI INJECTOR - MISE A JOUR UNIQUEMENT
-echo  =============================================================
+echo  ============================================================
+echo   ___  __  __ _   _ ___   ___ _   _     _  _____ _____ ___  ____  
+echo  / _ \^|  \/  ^| \ ^| ^|_ _^| ^|_ _^| \ ^| ^|   ^| ^|^| ____^|_   _/ _ \^|  _ \ 
+echo ^| ^| ^| ^| ^|\/^| ^|  \^| ^|^| ^|    ^| ^| ^|  \^| ^|_  ^| ^|^|  _^|   ^| ^|^| ^| ^| ^| ^|_) ^|
+echo ^| ^|_^| ^| ^|  ^| ^| ^|\  ^|^| ^|    ^| ^| ^| ^|\  ^| ^|_^| ^|^| ^|___  ^| ^|^| ^|_^| ^|  _ ^< 
+echo  \___/^|_^|  ^|_^|_^| \_^|___^|  ^|___^|_^| \_^|\___/^|_____^| ^|_^| \___/^|_^| \_\
+echo.
+echo                 [ MODULE DE MISE A JOUR ]
+echo  ============================================================
 echo.
 
-:: 1. Verification si c'est bien un dossier Git
+:: ==========================================
+:: ETAPE 1 : VERIFICATION DOSSIER GIT
+:: ==========================================
 if not exist ".git" (
     color 0C
-    echo  [ERREUR] Ce dossier n'est pas un depot Git valide.
-    echo  Le dossier ".git" est introuvable.
+    echo.
+    echo  [!] ERREUR FATALE :
+    echo      Ce dossier n'est pas un depot Git valide.
+    echo      Le dossier ".git" est introuvable.
     echo.
     echo  Appuyez sur une touche pour quitter...
     pause >nul
     exit /b
 )
 
-:: 2. Connexion et Fetch
-echo  [1/3] Connexion au serveur GitHub...
+:: ==========================================
+:: ETAPE 2 : CONNEXION
+:: ==========================================
+echo  [*] Connexion au serveur GitHub...
 git fetch origin main >nul 2>&1
 
 if %ERRORLEVEL% NEQ 0 (
     color 0C
     echo.
-    echo  [ERREUR] Impossible de contacter GitHub.
-    echo  Verifiez votre connexion internet.
+    echo  [!] ECHEC DE CONNEXION.
+    echo      Impossible de contacter GitHub. Verifiez votre internet.
     echo.
     echo  Appuyez sur une touche pour quitter...
     pause >nul
     exit /b
 )
 
-:: 3. Verification des versions
+:: ==========================================
+:: ETAPE 3 : COMPARAISON DES VERSIONS
+:: ==========================================
 for /f "delims=" %%i in ('git rev-parse HEAD') do set LOCAL=%%i
 for /f "delims=" %%i in ('git rev-parse origin/main') do set REMOTE=%%i
 
-echo  [2/3] Verification des versions...
+echo  [*] Verification de l'integrite des fichiers...
 
 if "!LOCAL!" == "!REMOTE!" (
-    color 0A
+    :: DEJA A JOUR
     echo.
-    echo  [OK] Aucune mise a jour necessaire.
-    echo       Votre version est a jour.
+    echo  [+] AUCUNE MISE A JOUR REQUISE.
+    echo      Hash actuel : !LOCAL:~0,7!
+    echo.
 ) else (
+    :: MISE A JOUR REQUISE
     color 0E
     echo.
-    echo  [UPDATE] Une nouvelle version est disponible !
-    echo           Installation en cours...
-    echo.
+    echo  [!] NOUVELLE VERSION DISPONIBLE !
+    echo      Installation de la mise a jour en cours...
+    echo  -------------------------------------------------------
     
-    :: Mise a jour
     git pull origin main
     
-    echo.
-    echo  [OK] Mise a jour terminee.
+    if !ERRORLEVEL! EQU 0 (
+        echo.
+        echo  [+] Mise a jour installee avec succes.
+    ) else (
+        color 0C
+        echo.
+        echo  [!] Erreur lors de l'installation de la mise a jour.
+    )
+    echo  -------------------------------------------------------
 )
 
+:: ==========================================
+:: FINAL - MESSAGE SPECIFIQUE LDC
+:: ==========================================
+color 0A
 echo.
-echo  =============================================================
-echo  Fin de l'operation. Appuyez sur une touche pour fermer.
+echo  ============================================================
+echo  [OK] VOTRE CHEAT EST A JOUR.
+echo.
+echo       MERCI D'AVOIR CHOISI LA LDC.
+echo  ============================================================
+echo.
 pause >nul
