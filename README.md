@@ -4,3 +4,5 @@ Alastor
 Kikou
 LDC NEVER DIE
 MAJ
+
+Alastor kikou et Golden
